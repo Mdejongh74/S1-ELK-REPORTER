@@ -19,7 +19,9 @@
 # Important:
 # Before executing below script to collect and Process SentinelOne Platform Data.
 # Make certain you have an active ELK stack up & running or, 
-# complete additional provided S1_Reporter_Install.sh script upfront to automate ELK stack installation & configuration. 
+# complete additional provided S1_Reporter_Install.sh script upfront to automate ELK stack installation & configuration.
+#
+# Run following bash command to start script 'sudo ./S1_Reporter_DataCollector.sh'
 # ------------------------------------------------------------------------------------
 #
 
