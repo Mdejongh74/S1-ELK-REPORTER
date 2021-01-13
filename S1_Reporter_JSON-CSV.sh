@@ -17,6 +17,7 @@
 # ------------------------------------------------------------------------------------
 # Note:
 # This script can be used to convert SentinelOne Global & Site specific Platform JSON data into CSV format for 3rd party reporting use.
+# Run following bash command to start script 'sudo ./S1_Reporter_JSON-CSV.sh'
 # ------------------------------------------------------------------------------------
 #
 
