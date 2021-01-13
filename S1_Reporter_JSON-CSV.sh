@@ -21,45 +21,93 @@
 #
 
 # Setup Collector Program Files & Directories
-DIR1=/tmp/sentinelone/
+echo '1. Checking if S1 Reporter directory structure is in place ..'
+echo '     '
+DIR1=/var/sentinelone/
 if [ ! -d $DIR1 ]; then
-sudo mkdir /tmp/sentinelone/
+mkdir /var/sentinelone/
 fi
 
-DIR2=/var/sentinelone/
+DIR2=/var/sentinelone/import
 if [ ! -d $DIR2 ]; then
-sudo mkdir /var/sentinelone/
+mkdir /var/sentinelone/import
 fi
 
-# Download JSON data using S1 API (GET) Call
-sudo echo '   '
-sudo read -p 'Please ENTER SentinelOne Management Console FQDN (like x.sentinelone.net): ' s1url
-sudo echo '   '
-sudo read -p 'Please ENTER SentinelOne API Key (like xxxxxxxxxxxxxxxxxxx): ' s1key
-sudo echo '    '
-sudo echo '1. Start Downloading new Platform data into dir /tmp/sentinelone/ '
-sudo wget --no-check-certificate --quiet \
-  --method GET \
-  --timeout=0 \
-  --header 'Authorization: ApiToken '$s1key \
-   'https://'$s1url'/web/api/v2.1/sites?limit=999&states=active' -O /tmp/sentinelone/download.json
+DIR3=/var/sentinelone/export
+if [ ! -d $DIR3 ]; then
+mkdir /var/sentinelone/export
+fi
 
-sudo echo '     '
-sudo echo 'Download Platform data completed!'
+DIR4=/var/sentinelone/backup
+if [ ! -d $DIR4 ]; then
+mkdir /var/sentinelone/backup
+fi
+
+DIR5=/var/sentinelone/config
+if [ ! -d $DIR5 ]; then
+mkdir /var/sentinelone/config
+fi
+
+DIR6=/var/sentinelone/key
+if [ ! -d $DIR6 ]; then
+mkdir /var/sentinelone/key
+fi
+
+
+# Delete old reporting data.
+echo '2. Checking if SentinelOne Platform data is cleared before new download ..' 
+FILE1=/var/sentinelone/import/download.json
+if [ -f $FILE1 ]; then
+    rm -rf $FILE1
+fi
+echo '     '
+
+# Lookup S1 Auth key & Download JSON data using S1 API (GET) Call
+echo '3. Checking if SentinelOne Authentication key exist for data download.'
+echo '         '
+FILE2=/var/sentinelone/key/auth.key
+if [ ! -f $FILE2 ]; then
+    echo 'ERROR: No Authentication information file found!!'
+    echo 'Please enter S1 Platform config data below: '
+    echo '           '
+    read -p "S1 Mngmnt Console Hostname (example x.sentinelone.net): " S1URL
+    echo '   '
+    echo FQDN=$S1URL >> /var/sentinelone/key/auth.key
+    read -p 'S1 Mngmnt Console (API)Token: ' S1KEY
+    echo APIKEY=$S1KEY >> /var/sentinelone/key/auth.key
+    echo '   '
+fi
+
+echo '4. Start Downloading new Platform data into dir /var/sentinelone/import/ '
+
+source /var/sentinelone/key/auth.key
+wget --no-check-certificate -q --show-progress \
+ --method GET \
+ --timeout=0 \
+ --header 'Authorization: ApiToken '$APIKEY \
+ 'https://'$FQDN'/web/api/v2.1/sites?limit=999&states=active' -O /var/sentinelone/import/download.json
+
+
 # Transform S1 Platform (Global) JSON data into CSV format (global.csv) and store into /var/sentinelone dir
-sudo echo '       '
-sudo echo '2. Converting SentinelOne Platform Data (JSON) into global.csv file and storing in Dir /var/sentinelone.'
-sudo echo '      '
-sudo jq -c -r '.data.sites [] | [.accountId, .accountName, .activeLicenses, .createdAt, .creator, .creatorId, .expiration, .externalId, .healthStatus, .id, .isDefault, .name, .registrationToken, .siteType, .sku, .state, .suite, .totalLicenses, .unlimitedExpiration, .unlimitedLicenses, .updatedAt]' /tmp/sentinelone/download.json >> /tmp/sentinelone/total.tmp
-sudo tr -d '"[]' < /tmp/sentinelone/total.tmp >> /var/sentinelone/global.csv
-sudo rm -rf /tmp/sentinelone/total.tmp
+echo '       '
+echo '5. Converting SentinelOne Platform Data (JSON) into global.csv file and storing in Dir /var/sentinelone/export.'
+echo '      '
+
+jq -c -r '.data.sites [] | [.accountId, .accountName, .activeLicenses, .createdAt, .creator, .creatorId, .expiration, .externalId, .healthStatus, .id, .isDefault, .name, .registrationToken, .siteType, .sku, .state, .suite, .totalLicenses, .unlimitedExpiration, .unlimitedLicenses, .updatedAt]' /var/sentinelone/import/download.json >> /var/sentinelone/import/total.tmp
+tr -d '"[]' < /var/sentinelone/import/total.tmp >> /var/sentinelone/export/global.csv
+rm -rf /var/sentinelone/import/total.tmp
 
 # Transform S1 Platform JSON (Sites specific) data into CSV format (sites.csv) and store into /var/sentinelone dir
-sudo echo '       '
-sudo echo '3. Converting SentinelOne Sites Data (JSON) into sites.csv file and storing in Dir /var/sentinelone.'
-sudo jq -c -r '.data.sites [] | [.name, .id, .state, .siteType, .activeLicenses, .totalLicenses, .suite, .expiration, .accountName]' /tmp/sentinelone/download.json >> /tmp/sentinelone/sites.tmp
-sudo tr -d '"[]' < /tmp/sentinelone/sites.tmp >> /var/sentinelone/sites.csv 
-sudo rm -rf /tmp/sentinelone/sites.tmp
-sudo echo '      '
-sudo echo 'SentinelOne MSP Reporter Script (JSON-CSV_S1Data.sh) completed.....'
-sudo echo '     '
+echo '6. Converting SentinelOne Sites Data (JSON) into sites.csv file and storing in Dir /var/sentinelone/export.'
+echo '      '
+jq -c -r '.data.sites [] | [.name, .id, .state, .siteType, .activeLicenses, .totalLicenses, .suite, .expiration, .accountName]' /var/sentinelone/import/download.json >> /var/sentinelone/import/sites.tmp
+tr -d '"[]' < /var/sentinelone/import/sites.tmp >> /var/sentinelone/export/sites.csv 
+rm -rf /var/sentinelone/import/sites.tmp
+
+# Completed SentinelOne Collector script
+echo '      '
+echo 'SentinelOne MSP Reporter Script (JSON-CSV_S1Data.sh) completed.....'
+echo '      '
+echo 'S1 Platform CSV data files are stored in dir /var/sentinelone/export '
+#
+# ------------------------------------------------------------------------------------
