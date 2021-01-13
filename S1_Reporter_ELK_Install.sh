@@ -18,6 +18,10 @@
 # Note:
 # This script can be used to allow automated installation of ElasticSearc, Logstash & Kibana (ELK stack) enviroment on Linux OS.
 # Additionally completing configuration of Logstash service for use with SentinelOne MSP reporter Tool. 
+#
+# Important:*** This script requires installation user to have passwordless sudo access on system ***
+
+# Run following bash command to start script 'sudo ./S1_Reporter_ELK_Install.sh'
 # ------------------------------------------------------------------------------------
 #
 #
@@ -101,50 +105,74 @@ rpm_elk() {
 setup_elk() {
 
 # Setup Collector Program Files & Directories
-DIR1=/tmp/sentinelone/
+echo 'Checking if S1 Reporter directory structure is in place ..'
+echo '     '
+DIR1=/var/sentinelone/
 if [ ! -d $DIR1 ]; then
-sudo mkdir /tmp/sentinelone/
+mkdir /var/sentinelone/
 fi
 
-DIR2=/var/sentinelone/
+DIR2=/var/sentinelone/import
 if [ ! -d $DIR2 ]; then
-sudo mkdir /var/sentinelone/
+mkdir /var/sentinelone/import
 fi
 
-FILE1=/tmp/sentinelone/config/sentinelone.conf
-if [ ! -f $FILE1 ]; then
-    sudo echo 'input {'$'\r' >> /var/sentinelone/sentinelone.conf
-    sudo echo '  file {'$'\r' >> /var/sentinelone/sentinelone.conf
-    sudo echo '      start_position => "beginning"'$'\r' >> /var/sentinelone/sentinelone.conf
-    sudo echo '      path => "/tmp/sentinelone/S1ELK.log"'$'\r' >> /var/sentinelone/sentinelone.conf
-    sudo echo '      sincedb_path => "/dev/null"'$'\r' >> /var/sentinelone/sentinelone.conf
-    sudo echo '  }'$'\r' >> /var/sentinelone.conf
-    sudo echo '}'$'\r' >> /var/sentinelone/sentinelone.conf
-    sudo echo 'filter {'$'\r' >> /var/sentinelone/sentinelone.conf
-    sudo echo '  json {'$'\r' >> /var/sentinelone/sentinelone.conf
-    sudo echo '      source => "message"'$'\r' >> /var/sentinelone/sentinelone.conf
-    sudo echo '  }'$'\r' >> /var/sentinelone/sentinelone.conf
-    sudo echo '  date {'$'\r' >> /var/sentinelone/sentinelone.conf
-    sudo echo '      match => ["createdAt", "ISO8601"]'$'\r' >> /var/sentinelone/sentinelone.conf
-    sudo echo '  }'$'\r' >> /var/sentinelone/sentinelone.conf
-    sudo echo '  mutate {'$'\r' >> /var/sentinelone/sentinelone.conf
-    sudo echo '      remove_field => ["message", "host", "path", "@version", "@timestamp"]'$'\r' >> /var/sentinelone/sentinelone.conf
-    sudo echo '  }'$'\r' >> /var/sentinelone/sentinelone.conf
-    sudo echo '}'$'\r' >> /var/sentinelone/sentinelone.conf
-    sudo echo 'output {'$'\r' >> /var/sentinelone/sentinelone.conf
-    sudo echo '  elasticsearch {'$'\r' >> /var/sentinelone/sentinelone.conf
-    sudo echo '      hosts => "http://localhost:9200"'$'\r' >> /var/sentinelone/sentinelone.conf
-    sudo echo '      index => "index-msp"'$'\r' >> /var/sentinelone/sentinelone.conf
-    sudo echo '  }'$'\r' >> /var/sentinelone/sentinelone.conf
-    sudo echo '  stdout {}'$'\r' >> /var/sentinelone/sentinelone.conf
-    sudo echo '}'$'\r' >> /var/sentinelone/sentinelone.conf
+DIR3=/var/sentinelone/export
+if [ ! -d $DIR3 ]; then
+mkdir /var/sentinelone/export
 fi
+
+DIR4=/var/sentinelone/backup
+if [ ! -d $DIR4 ]; then
+mkdir /var/sentinelone/backup
+fi
+
+DIR5=/var/sentinelone/config
+if [ ! -d $DIR5 ]; then
+mkdir /var/sentinelone/config
+fi
+
+DIR6=/var/sentinelone/key
+if [ ! -d $DIR6 ]; then
+mkdir /var/sentinelone/key
+fi
+
+echo 'Checking if ELK-Logstash S1 Collector File is configured..'
+echo '  '
+FILE1=/var/sentinelone/config/sentinelone.conf
+if [ ! -f $FILE1 ]; then
+    echo 'input {'$'\r' >> /var/sentinelone/config/sentinelone.conf
+    echo '  file {'$'\r' >> /var/sentinelone/config/sentinelone.conf
+    echo '      start_position => "beginning"'$'\r' >> /var/sentinelone/config/sentinelone.conf
+    echo '      path => "/var/sentinelone/export/report.log"'$'\r' >> /var/sentinelone/config/sentinelone.conf
+    echo '      sincedb_path => "/dev/null"'$'\r' >> /var/sentinelone/config/sentinelone.conf
+    echo '  }'$'\r' >> /var/sentinelone/config/sentinelone.conf
+    echo '}'$'\r' >> /var/sentinelone/config/sentinelone.conf
+    echo 'filter {'$'\r' >> /var/sentinelone/config/sentinelone.conf
+    echo '  json {'$'\r' >> /var/sentinelone/config/sentinelone.conf
+    echo '      source => "message"'$'\r' >> /var/sentinelone/config/sentinelone.conf
+    echo '  }'$'\r' >> /var/sentinelone/config/sentinelone.conf
+    echo '  date {'$'\r' >> /var/sentinelone/config/sentinelone.conf
+    echo '      match => ["createdAt", "ISO8601"]'$'\r' >> /var/sentinelone/config/sentinelone.conf
+    echo '  }'$'\r' >> /var/sentinelone/config/sentinelone.conf
+    echo '  mutate {'$'\r' >> /var/sentinelone/config/sentinelone.conf
+    echo '      remove_field => ["message", "host", "path", "@version", "@timestamp"]'$'\r' >> /var/sentinelone/config/sentinelone.conf
+    echo '  }'$'\r' >> /var/sentinelone/config/sentinelone.conf
+    echo '}'$'\r' >> /var/sentinelone/config/sentinelone.conf
+    echo 'output {'$'\r' >> /var/sentinelone/config/sentinelone.conf
+    echo '  elasticsearch {'$'\r' >> /var/sentinelone/config/sentinelone.conf
+    echo '      hosts => "http://localhost:9200"'$'\r' >> /var/sentinelone/config/sentinelone.conf
+    echo '      index => "index-msp"'$'\r' >> /var/sentinelone/config/sentinelone.conf
+    echo '  }'$'\r' >> /var/sentinelone/config/sentinelone.conf
+    echo '  stdout {}'$'\r' >> /var/sentinelone/config/sentinelone.conf
+    echo '}'$'\r' >> /var/sentinelone/config/sentinelone.conf
+fi
+
 FILE2=/etc/logstash/conf.d/sentinelone.conf
 if [ ! -f $FILE2 ]; then
-sudo cp /var/sentinelone/sentinelone.conf /etc/logstash/conf.d/sentinelone.conf
+cp /var/sentinelone/config/sentinelone.conf /etc/logstash/conf.d/sentinelone.conf
 fi
 }
-
 
 # Checking whether user has enough permission to run this script
 sudo -n true
@@ -172,3 +200,5 @@ elif [ "$(grep -Ei 'fedora|redhat|centos' /etc/*release)" ]
 else
     echo "This script doesn't support ELK installation on this OS."
 fi
+#
+# ------------------------------------------------------------------------------------
