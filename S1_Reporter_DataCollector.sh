@@ -151,13 +151,16 @@ rm -rf /var/sentinelone/import/convert.json
 echo '9. Starting ELK-Logstash service to process SentinelOne Platform data for visualisation in ELK-Kibana .. ' 
 echo '   '
 curl -X DELETE "localhost:9200/index-msp?pretty"
-/usr/share/logstash/bin/logstash -f /etc/logstash/conf.d/sentinelone.conf
-
+timeout 120 /usr/share/logstash/bin/logstash -f /etc/logstash/conf.d/sentinelone.conf
+ 
 # Completed SentinelOne Collector script
-
+ 
 #
 # ------------------------------------------------------------------------------------
 # Note:
-# After data download and correct ELK data import, you can close SentinelOne Collector script + Console.
+# After data download and correct ELK data import, you can :
+# A. Manually close SentinelOne Collector script using Control-C.
+# B. Wait 120 Seconds and Logstash service will automatically stop.
+#
 # When required, re-run script to collect new S1 info & to report within Kibana Console.
 # ------------------------------------------------------------------------------------
