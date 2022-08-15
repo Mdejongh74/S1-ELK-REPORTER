@@ -59,15 +59,15 @@ debian_elk() {
     # Install Jq event Parser
     sudo apt-get install jq -y
     # Downloading debian package of logstash
-    sudo wget --directory-prefix=/opt/ https://artifacts.elastic.co/downloads/logstash/logstash-7.10.1-amd64.deb
+    sudo wget --directory-prefix=/opt/ https://artifacts.elastic.co/downloads/logstash/logstash-8.3.3-amd64.deb
     # Install logstash debian package
     sudo dpkg -i /opt/logstash*.deb
     # Downloading debian package of elasticsearch
-    sudo wget --directory-prefix=/opt/ https://artifacts.elastic.co/downloads/elasticsearch/elasticsearch-7.10.1-amd64.deb
+    sudo wget --directory-prefix=/opt/ https://artifacts.elastic.co/downloads/elasticsearch/elasticsearch-8.3.3-amd64.deb
     # Install debian package of elasticsearch
     sudo dpkg -i /opt/elasticsearch*.deb
     # Download kibana tarball in /opt
-    sudo wget --directory-prefix=/opt/ https://artifacts.elastic.co/downloads/kibana/kibana-7.10.1-amd64.deb
+    sudo wget --directory-prefix=/opt/ https://artifacts.elastic.co/downloads/kibana/kibana-8.3.3-amd64.deb
     # Extracting kibana tarball
     sudo dpkg -i /opt/kibana*.deb
     # Starting The Services
@@ -82,15 +82,15 @@ rpm_elk() {
     #Installing wget.
     sudo yum install wget -y
     # Downloading rpm package of logstash
-    sudo wget --directory-prefix=/opt/ https://artifacts.elastic.co/downloads/logstash/logstash-7.10.1-x86_64.rpm
+    sudo wget --directory-prefix=/opt/ https://artifacts.elastic.co/downloads/logstash/logstash-8.3.3-x86_64.rpm
     # Install logstash rpm package
     sudo rpm -ivh /opt/logstash*.rpm
     # Downloading rpm package of elasticsearch
-    sudo wget --directory-prefix=/opt/ https://artifacts.elastic.co/downloads/elasticsearch/elasticsearch-7.10.1-x86_64.rpm
+    sudo wget --directory-prefix=/opt/ https://artifacts.elastic.co/downloads/elasticsearch/elasticsearch-8.3.3-x86_64.rpm
     # Install rpm package of elasticsearch
     sudo rpm -ivh /opt/elasticsearch*.rpm
     # Download kibana tarball in /opt
-    sudo wget --directory-prefix=/opt/ https://artifacts.elastic.co/downloads/kibana/kibana-7.10.1-x86_64.rpm
+    sudo wget --directory-prefix=/opt/ https://artifacts.elastic.co/downloads/kibana/kibana-8.3.3-x86_64.rpm
     # Extracting kibana tarball
     sudo rpm -ivh /opt/kibana*.rpm
     # Starting The Services
@@ -161,7 +161,7 @@ if [ ! -f $FILE1 ]; then
     echo '}'$'\r' >> /var/sentinelone/config/sentinelone.conf
     echo 'output {'$'\r' >> /var/sentinelone/config/sentinelone.conf
     echo '  elasticsearch {'$'\r' >> /var/sentinelone/config/sentinelone.conf
-    echo '      hosts => "http://localhost:9200"'$'\r' >> /var/sentinelone/config/sentinelone.conf
+    echo '      hosts => "https://localhost:9200"'$'\r' >> /var/sentinelone/config/sentinelone.conf
     echo '      index => "index-msp"'$'\r' >> /var/sentinelone/config/sentinelone.conf
     echo '  }'$'\r' >> /var/sentinelone/config/sentinelone.conf
     echo '  stdout {}'$'\r' >> /var/sentinelone/config/sentinelone.conf
