@@ -122,8 +122,8 @@ fi
 echo '5. Start Downloading new Platform data into dir /var/sentinelone/import/ '
 
 source /var/sentinelone/key/auth.key
-wget --no-check-certificate -q --show-progress \
- --method GET \
+# PJ: wget updated with latest commands. progress=bar altered and method get is depreciated
+wget --no-check-certificate -q --progress=bar \
  --timeout=0 \
  --header 'Authorization: ApiToken '$APIKEY \
  'https://'$FQDN'/web/api/v2.1/sites?limit=999&states=active' -O /var/sentinelone/import/download.json
