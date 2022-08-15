@@ -83,7 +83,7 @@ if [ ! -f $FILE1 ]; then
     echo '}'$'\r' >> /var/sentinelone/config/sentinelone.conf
     echo 'output {'$'\r' >> /var/sentinelone/config/sentinelone.conf
     echo '  elasticsearch {'$'\r' >> /var/sentinelone/config/sentinelone.conf
-    echo '      hosts => "http://localhost:9200"'$'\r' >> /var/sentinelone/config/sentinelone.conf
+    echo '      hosts => "https://localhost:9200"'$'\r' >> /var/sentinelone/config/sentinelone.conf
     echo '      index => "index-msp"'$'\r' >> /var/sentinelone/config/sentinelone.conf
     echo '  }'$'\r' >> /var/sentinelone/config/sentinelone.conf
     echo '  stdout {}'$'\r' >> /var/sentinelone/config/sentinelone.conf
